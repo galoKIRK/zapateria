@@ -1,0 +1,70 @@
+<!-- pos/templates/pos/proveedores.html -->
+{% extends 'pos/base.html' %}
+
+{% block title %}Proveedores - POS Zapatería{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>🏭 Gestión de Proveedores</h2>
+    {% if user.rol == 'administrador' %}
+    <a href="{% url 'proveedor_nuevo' %}" class="btn btn-primary">+ Nuevo Proveedor</a>
+    {% endif %}
+</div>
+
+{% if proveedores %}
+<div style="margin-bottom: 1rem; padding: 1rem; background: #f9fafb; border-radius: 8px;">
+    <strong>Total de proveedores activos: {{ proveedores.count }}</strong>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+    {% for proveedor in proveedores %}
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+            <h3 style="margin: 0; color: #667eea;">{{ proveedor.nombre }}</h3>
+            <span class="badge badge-success">Activo</span>
+        </div>
+        
+        <div style="margin-bottom: 0.8rem;">
+            <strong>RFC:</strong> {{ proveedor.rfc }}
+        </div>
+        
+        <div style="margin-bottom: 0.8rem;">
+            <strong>📞 Teléfono:</strong> {{ proveedor.telefono }}
+        </div>
+        
+        <div style="margin-bottom: 0.8rem;">
+            <strong>📧 Email:</strong> {{ proveedor.email }}
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+            <strong>📍 Dirección:</strong><br>
+            <span style="color: #666;">{{ proveedor.direccion }}</span>
+        </div>
+        
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+            <small style="color: #999;">Registrado: {{ proveedor.fecha_registro|date:"d/m/Y" }}</small>
+        </div>
+        
+        {% if user.rol == 'administrador' %}
+        <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+            <a href="{% url 'proveedor_editar' proveedor.id %}" class="btn btn-primary btn-sm" style="flex: 1;">
+                ✏️ Editar
+            </a>
+            <a href="{% url 'nueva_compra' %}?proveedor={{ proveedor.id }}" class="btn btn-success btn-sm" style="flex: 1;">
+                📦 Nueva Compra
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-state-icon">🏭</div>
+    <p>No hay proveedores registrados</p>
+    {% if user.rol == 'administrador' %}
+    <a href="{% url 'proveedor_nuevo' %}" class="btn btn-primary" style="margin-top: 1rem;">+ Agregar Primer Proveedor</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

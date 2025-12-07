@@ -1,0 +1,68 @@
+{% extends 'pos/base.html' %}
+
+{% block title %}
+{% if proveedor %}Editar Proveedor{% else %}Nuevo Proveedor{% endif %} - POS Zapatería
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{% if proveedor %}✏️ Editar Proveedor{% else %}🏭 Nuevo Proveedor{% endif %}</h2>
+    <a href="{% url 'proveedores' %}" class="btn btn-secondary">⬅️ Volver</a>
+</div>
+
+<div class="card">
+    <h3>Información del Proveedor</h3>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="alert alert-error">
+            <strong>⚠️ Hay errores en el formulario:</strong><br>
+            {{ form.errors }}
+        </div>
+        {% endif %}
+
+        <div class="grid-2">
+            <div class="form-group">
+                {{ form.nombre.label_tag }}
+                {{ form.nombre }}
+            </div>
+
+            <div class="form-group">
+                {{ form.rfc.label_tag }}
+                {{ form.rfc }}
+            </div>
+
+            <div class="form-group">
+                {{ form.telefono.label_tag }}
+                {{ form.telefono }}
+            </div>
+
+            <div class="form-group">
+                {{ form.email.label_tag }}
+                {{ form.email }}
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 1rem;">
+            {{ form.direccion.label_tag }}
+            {{ form.direccion }}
+        </div>
+
+        <div class="form-group" style="margin-top: 1rem;">
+            <label class="form-check-label">
+                {{ form.activo }} Activo
+            </label>
+        </div>
+
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-success">
+                💾 {% if proveedor %}Actualizar{% else %}Guardar{% endif %}
+            </button>
+            <a href="{% url 'proveedores' %}" class="btn btn-danger">Cancelar</a>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

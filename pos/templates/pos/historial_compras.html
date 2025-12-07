@@ -1,0 +1,108 @@
+{% extends 'pos/base.html' %}
+
+{% block title %}Historial de Compras - POS Zapatería{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>📑 Historial de Compras</h2>
+    {% if user.rol != 'consulta' %}
+    <a href="{% url 'nueva_compra' %}" class="btn btn-primary">+ Nueva Compra</a>
+    {% endif %}
+</div>
+
+{% if compras %}
+<div style="margin-bottom: 1rem; padding: 1rem; background: #f9fafb; border-radius: 8px;">
+    <strong>Total de compras: {{ compras.count }}</strong>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Folio</th>
+                <th>Fecha</th>
+                <th>Proveedor</th>
+                <th>Total</th>
+                <th>Usuario</th>
+                <th>Notas</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for compra in compras %}
+            <tr>
+                <td><strong>{{ compra.folio }}</strong></td>
+                <td>{{ compra.fecha|date:"d/m/Y H:i" }}</td>
+                <td>
+                    <div style="display: flex; flex-direction: column;">
+                        <strong>{{ compra.proveedor.nombre }}</strong>
+                        <small style="color: #999;">RFC: {{ compra.proveedor.rfc }}</small>
+                    </div>
+                </td>
+                <td><strong style="color: #10b981; font-size: 1.1rem;">${{ compra.total }}</strong></td>
+                <td>{{ compra.usuario.username }}</td>
+                <td>
+                    {% if compra.notas %}
+                        <span title="{{ compra.notas }}">{{ compra.notas|truncatewords:5 }}</span>
+                    {% else %}
+                        <span style="color: #999;">Sin notas</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'detalle_compra' compra.id %}" class="btn btn-primary btn-sm">👁️ Ver Detalle</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-state-icon">📦</div>
+    <p>No hay compras registradas</p>
+    {% if user.rol != 'consulta' %}
+    <a href="{% url 'nueva_compra' %}" class="btn btn-primary" style="margin-top: 1rem;">+ Realizar Primera Compra</a>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Modal para ver detalle -->
+<div id="modalDetalle" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 12px; padding: 2rem; max-width: 800px; width: 90%; max-height: 80vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2>Detalle de Compra</h2>
+            <button onclick="cerrarModal()" class="btn btn-danger btn-sm">✕ Cerrar</button>
+        </div>
+        <div id="contenidoDetalle">Cargando...</div>
+    </div>
+</div>
+
+<script>
+function verDetalle(compraId) {
+    const modal = document.getElementById('modalDetalle');
+    modal.style.display = 'flex';
+    
+    // Redirigir al panel de admin para ver detalles completos
+    document.getElementById('contenidoDetalle').innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">📦</div>
+            <p style="margin-bottom: 1.5rem;">Para ver el detalle completo de la compra, visita el panel de administración.</p>
+            <a href="/admin/pos/compra/${compraId}/change/" target="_blank" class="btn btn-primary" style="padding: 1rem 2rem;">
+                📋 Ver Detalle Completo
+            </a>
+        </div>
+    `;
+}
+
+function cerrarModal() {
+    document.getElementById('modalDetalle').style.display = 'none';
+}
+
+// Cerrar modal al hacer clic fuera
+document.getElementById('modalDetalle').addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModal();
+    }
+});
+</script>
+{% endblock %}

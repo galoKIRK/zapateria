@@ -1,0 +1,85 @@
+<!-- pos/templates/pos/historial_ventas.html -->
+{% extends 'pos/base.html' %}
+
+{% block title %}Historial de Ventas - POS Zapatería{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>📋 Historial de Ventas</h2>
+    {% if user.rol != 'consulta' %}
+    <a href="{% url 'nueva_venta' %}" class="btn btn-primary">+ Nueva Venta</a>
+    {% endif %}
+</div>
+
+<form method="GET" class="search-box">
+    <input type="date" name="fecha_inicio" class="form-control" value="{{ request.GET.fecha_inicio }}">
+    <input type="date" name="fecha_fin" class="form-control" value="{{ request.GET.fecha_fin }}">
+    <button type="submit" class="btn btn-primary">🔍 Filtrar</button>
+    <a href="{% url 'historial_ventas' %}" class="btn btn-danger">🔄 Limpiar</a>
+</form>
+
+{% if ventas %}
+<div style="margin-bottom: 1rem; padding: 1rem; background: #f9fafb; border-radius: 8px;">
+    <strong>Total de ventas encontradas: {{ ventas.count }}</strong>
+    <span style="margin-left: 2rem;">
+        Monto total: 
+        <strong style="color: #10b981; font-size: 1.2rem;">
+            ${{ monto_total|floatformat:2 }}
+        </strong>
+    </span>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Folio</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Método Pago</th>
+                <th>Total</th>
+                <th>Usuario</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for venta in ventas %}
+            <tr>
+                <td><strong>{{ venta.folio }}</strong></td>
+                <td>{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+                <td>
+                    {% if venta.cliente %}
+                        {{ venta.cliente.nombre }}
+                    {% else %}
+                        <span class="badge badge-info">Público General</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if venta.metodo_pago == 'efectivo' %}
+                        <span class="badge badge-success">💵 Efectivo</span>
+                    {% elif venta.metodo_pago == 'tarjeta' %}
+                        <span class="badge badge-info">💳 Tarjeta</span>
+                    {% else %}
+                        <span class="badge badge-warning">🏦 Transferencia</span>
+                    {% endif %}
+                </td>
+                <td><strong style="color: #10b981; font-size: 1.1rem;">${{ venta.total }}</strong></td>
+                <td>{{ venta.usuario.username }}</td>
+                <td>
+                    <a href="{% url 'detalle_venta' venta.id %}" class="btn btn-primary btn-sm">👁️ Ver Detalle</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-state-icon">📋</div>
+    <p>No hay ventas registradas</p>
+    {% if user.rol != 'consulta' %}
+    <a href="{% url 'nueva_venta' %}" class="btn btn-primary" style="margin-top: 1rem;">+ Realizar Primera Venta</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

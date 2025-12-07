@@ -1,0 +1,48 @@
+{% extends 'pos/base.html' %}
+
+{% block title %}Detalle Compra - Folio {{ compra.folio }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>📦 Detalle de Compra #{{ compra.folio }}</h2>
+    <a href="{% url 'historial_compras' %}" class="btn btn-secondary">⬅️ Volver</a>
+    <a href="{% url 'compra_pdf' compra.id %}" target="_blank" class="btn btn-danger">🧾 Descargar PDF</a>
+</div>
+
+
+<div class="card">
+    <p><strong>Fecha:</strong> {{ compra.fecha|date:"d/m/Y H:i" }}</p>
+    <p><strong>Proveedor:</strong> {{ compra.proveedor.nombre }}</p>
+    <p><strong>Usuario:</strong> {{ compra.usuario.username }}</p>
+    <p><strong>Notas:</strong> {{ compra.notas|default:"Sin notas" }}</p>
+</div>
+
+<h3 style="margin-top:1.5rem;">Productos Comprados</h3>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in detalles %}
+            <tr>
+                <td>{{ item.producto.nombre }}</td>
+                <td>{{ item.cantidad }}</td>
+                <td>${{ item.precio_unitario|floatformat:2 }}</td>
+                <td><strong>${{ item.subtotal|floatformat:2 }}</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div style="margin-top: 1rem; text-align:right;">
+    <h3>Total: <span style="color:#10b981">${{ total|floatformat:2 }}</span></h3>
+</div>
+
+{% endblock %}

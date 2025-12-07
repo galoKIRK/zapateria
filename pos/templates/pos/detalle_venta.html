@@ -1,0 +1,54 @@
+{% extends 'pos/base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <h2>🧾 Detalle de Venta #{{ venta.folio }}</h2>
+    <a href="{% url 'historial_ventas' %}" class="btn btn-secondary">⬅️ Volver</a>
+</div>
+
+<div class="card">
+    <p><strong>Fecha:</strong> {{ venta.fecha|date:"d/m/Y H:i" }}</p>
+    <p><strong>Cliente:</strong> 
+        {% if venta.cliente %}
+            {{ venta.cliente.nombre }}
+        {% else %}
+            Público General
+        {% endif %}
+    </p>
+    <p><strong>Método de pago:</strong> {{ venta.get_metodo_pago_display }}</p>
+    <p><strong>Usuario:</strong> {{ venta.usuario }}</p>
+</div>
+
+<h3 style="margin-top:1.5rem;">Productos vendidos</h3>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in detalles %}
+            <tr>
+                <td>{{ item.producto.nombre }} ({{ item.producto.marca }})</td>
+                <td>{{ item.cantidad }}</td>
+                <td>${{ item.precio_unitario|floatformat:2 }}</td>
+                <td><strong>${{ item.subtotal|floatformat:2 }}</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div style="margin-top: 1rem; text-align:right;">
+    <h3>Total: <span style="color:#10b981">${{ venta.total|floatformat:2 }}</span></h3>
+</div>
+
+<a href="{% url 'ticket_pdf' venta.id %}" class="btn btn-danger" target="_blank">
+    🧾 Descargar Ticket PDF
+</a>
+
+{% endblock %}

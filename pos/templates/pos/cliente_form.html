@@ -1,0 +1,66 @@
+{% extends 'pos/base.html' %}
+
+{% block title %}
+    {% if cliente %}
+        Editar Cliente - POS Zapatería
+    {% else %}
+        Nuevo Cliente - POS Zapatería
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>
+        {% if cliente %}
+            ✏️ Editar Cliente
+        {% else %}
+            👤 Nuevo Cliente
+        {% endif %}
+    </h2>
+</div>
+
+<form method="POST" class="form-grid">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label>Nombre *</label>
+        <input type="text" name="nombre" class="form-control" 
+               value="{{ form.nombre.value|default_if_none:'' }}" required>
+    </div>
+
+    <div class="form-group">
+        <label>Teléfono *</label>
+        <input type="text" name="telefono" class="form-control" 
+               value="{{ form.telefono.value|default_if_none:'' }}" required>
+    </div>
+
+    <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" class="form-control" 
+               value="{{ form.email.value|default_if_none:'' }}">
+    </div>
+
+    <div class="form-group" style="grid-column: span 2;">
+        <label>Dirección</label>
+        <textarea name="direccion" class="form-control" rows="2">{{ form.direccion.value }}</textarea>
+    </div>
+
+    <div style="grid-column: span 2; margin-top: 1rem;">
+        <button type="submit" class="btn btn-success">
+            {% if cliente %}💾 Actualizar{% else %}💾 Guardar{% endif %}
+        </button>
+        <a href="{% url 'clientes' %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+
+<style>
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 10px;
+}
+</style>
+{% endblock %}

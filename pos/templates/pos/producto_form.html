@@ -1,0 +1,134 @@
+<!-- pos/templates/pos/producto_form.html -->
+{% extends 'pos/base.html' %}
+
+{% block title %}{{ titulo }} - POS Zapatería{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{{ titulo }}</h2>
+    <a href="{% url 'productos' %}" class="btn btn-danger">❌ Cancelar</a>
+</div>
+
+<form method="POST" enctype="multipart/form-data" style="max-width: 900px;">
+    {% csrf_token %}
+    
+    <div class="card" style="margin-bottom: 2rem;">
+        <h3>📋 Información Básica</h3>
+        <div class="grid-2">
+            <div class="form-group">
+                {{ form.codigo.label_tag }}
+                {{ form.codigo }}
+                {% if form.codigo.errors %}
+                    <div style="color: #ef4444; font-size: 0.9rem; margin-top: 0.5rem;">
+                        {{ form.codigo.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.nombre.label_tag }}
+                {{ form.nombre }}
+                {% if form.nombre.errors %}
+                    <div style="color: #ef4444; font-size: 0.9rem; margin-top: 0.5rem;">
+                        {{ form.nombre.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="grid-2">
+            <div class="form-group">
+                {{ form.tipo.label_tag }}
+                {{ form.tipo }}
+            </div>
+            
+            <div class="form-group">
+                {{ form.marca.label_tag }}
+                {{ form.marca }}
+            </div>
+        </div>
+        
+        <div class="grid-2">
+            <div class="form-group">
+                {{ form.talla.label_tag }}
+                {{ form.talla }}
+            </div>
+            
+            <div class="form-group">
+                {{ form.color.label_tag }}
+                {{ form.color }}
+            </div>
+        </div>
+        
+        <div class="form-group">
+            {{ form.descripcion.label_tag }}
+            {{ form.descripcion }}
+        </div>
+    </div>
+    
+    <div class="card" style="margin-bottom: 2rem;">
+        <h3>💰 Precios y Stock</h3>
+        <div class="grid-2">
+            <div class="form-group">
+                {{ form.precio_compra.label_tag }}
+                {{ form.precio_compra }}
+                {% if form.precio_compra.errors %}
+                    <div style="color: #ef4444; font-size: 0.9rem; margin-top: 0.5rem;">
+                        {{ form.precio_compra.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.precio_venta.label_tag }}
+                {{ form.precio_venta }}
+                {% if form.precio_venta.errors %}
+                    <div style="color: #ef4444; font-size: 0.9rem; margin-top: 0.5rem;">
+                        {{ form.precio_venta.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="grid-2">
+            <div class="form-group">
+                {{ form.stock.label_tag }}
+                {{ form.stock }}
+            </div>
+            
+            <div class="form-group">
+                {{ form.stock_minimo.label_tag }}
+                {{ form.stock_minimo }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="card" style="margin-bottom: 2rem;">
+        <h3>🖼️ Imagen y Estado</h3>
+        <div class="form-group">
+            {{ form.imagen.label_tag }}
+            {{ form.imagen }}
+            {% if producto.imagen %}
+                <div style="margin-top: 1rem;">
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" 
+                         style="max-width: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                {{ form.activo }}
+                {{ form.activo.label_tag }}
+            </div>
+        </div>
+    </div>
+    
+    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+        <a href="{% url 'productos' %}" class="btn btn-danger">❌ Cancelar</a>
+        <button type="submit" class="btn btn-success" style="padding: 1rem 3rem;">
+            💾 Guardar Producto
+        </button>
+    </div>
+</form>
+{% endblock %}

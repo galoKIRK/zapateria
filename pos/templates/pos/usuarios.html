@@ -1,0 +1,67 @@
+{% extends 'pos/base.html' %}
+
+{% block title %}Usuarios - POS Zapatería{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>👥 Gestión de Usuarios</h2>
+    <a href="{% url 'usuario_nuevo' %}" class="btn btn-primary">+ Nuevo Usuario</a>
+</div>
+
+{% if usuarios %}
+<div style="margin-bottom: 1rem; padding: 1rem; background: #f9fafb; border-radius: 8px;">
+    <strong>Total de usuarios: {{ usuarios.count }}</strong>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Nombre Completo</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Fecha Registro</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td><strong>{{ usuario.username }}</strong></td>
+                <td>{{ usuario.get_full_name|default:"Sin nombre" }}</td>
+                <td>{{ usuario.email|default:"Sin email" }}</td>
+                <td>
+                    {% if usuario.rol == 'administrador' %}
+                        <span class="badge badge-danger">👑 Administrador</span>
+                    {% elif usuario.rol == 'empleado' %}
+                        <span class="badge badge-success">👤 Empleado</span>
+                    {% else %}
+                        <span class="badge badge-info">👁️ Consulta</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if usuario.is_active %}
+                        <span class="badge badge-success">✅ Activo</span>
+                    {% else %}
+                        <span class="badge badge-danger">❌ Inactivo</span>
+                    {% endif %}
+                </td>
+                <td>{{ usuario.date_joined|date:"d/m/Y" }}</td>
+                <td>
+                    <a href="{% url 'usuario_editar' usuario.id %}" class="btn btn-primary btn-sm">✏️ Editar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-state-icon">👥</div>
+    <p>No hay usuarios registrados</p>
+    <a href="{% url 'usuario_nuevo' %}" class="btn btn-primary" style="margin-top: 1rem;">+ Agregar Primer Usuario</a>
+</div>
+{% endif %}
+{% endblock %}

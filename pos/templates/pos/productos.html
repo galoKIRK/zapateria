@@ -1,0 +1,91 @@
+{% extends 'pos/base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <h2>👟 Gestión de Productos</h2>
+    {% if user.rol == 'administrador' %}
+     <a href="{% url 'producto_nuevo' %}" class="btn btn-primary">+ Nuevo Producto</a>
+    {% endif %}
+</div>
+
+<div class="search-box d-flex gap-2">
+    <input type="text" class="form-control" placeholder="Buscar por nombre, código o marca..." id="searchInput">
+
+    <select class="form-control" id="tipoFiltro" style="max-width: 200px;">
+        <option value="">Todos los tipos</option>
+        <option value="casual">Casual</option>
+        <option value="deportivo">Deportivo</option>
+    </select>
+
+    <button class="btn btn-primary" id="btnBuscar" type="button">Buscar</button>
+</div>
+
+<div class="table-container">
+    <table id="tablaProductos">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Marca</th>
+                <th>Talla</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <td><strong>{{ producto.codigo }}</strong></td>
+                <td>{{ producto.nombre }}</td>
+                <td><span class="badge badge-success">{{ producto.get_tipo_display }}</span></td>
+                <td>{{ producto.marca }}</td>
+                <td>{{ producto.talla }}</td>
+                <td>${{ producto.precio_venta }}</td>
+                <td>
+                    {% if producto.necesita_reposicion %}
+                    <span class="badge badge-danger">{{ producto.stock }}</span>
+                    {% else %}
+                    <span class="badge badge-success">{{ producto.stock }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'producto_detalle' producto.pk %}" class="btn btn-primary btn-sm">👁️ Ver</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- 🔍 Script de filtrado -->
+<script>
+function filtrarTabla() {
+    const texto = document.getElementById("searchInput").value.toLowerCase();
+    const tipo = document.getElementById("tipoFiltro").value;
+    const filas = document.querySelectorAll("#tablaProductos tbody tr");
+
+    filas.forEach(fila => {
+        let codigo = fila.cells[0].textContent.toLowerCase();
+        let nombre = fila.cells[1].textContent.toLowerCase();
+        let tipoProducto = fila.cells[2].textContent.toLowerCase();
+        let marca = fila.cells[3].textContent.toLowerCase();
+
+        let coincideTexto = 
+            codigo.includes(texto) ||
+            nombre.includes(texto) ||
+            marca.includes(texto);
+
+        let coincideTipo = (tipo === "" || tipoProducto.includes(tipo));
+
+        fila.style.display = (coincideTexto && coincideTipo) ? "" : "none";
+    });
+}
+
+document.getElementById("searchInput").addEventListener("keyup", filtrarTabla);
+document.getElementById("tipoFiltro").addEventListener("change", filtrarTabla);
+document.getElementById("btnBuscar").addEventListener("click", filtrarTabla);
+</script>
+
+{% endblock %}

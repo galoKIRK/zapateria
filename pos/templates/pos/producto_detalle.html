@@ -1,0 +1,45 @@
+{% extends 'pos/base.html' %}
+
+{% block title %}{{ producto.nombre }} - Detalles{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>🛍️ Detalle del Producto</h2>
+    <a href="{% url 'productos' %}" class="btn btn-secondary">⬅️ Volver</a>
+</div>
+
+<div class="card">
+    <h3>{{ producto.nombre }}</h3>
+
+    {% if producto.imagen %}
+    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="img-fluid" style="max-width: 200px; border-radius: 8px; margin-bottom:1rem;">
+    {% endif %}
+
+
+    <div class="grid-2" style="margin-top: 1rem;">
+        <div><strong>Código:</strong> {{ producto.codigo }}</div>
+        <div><strong>Marca:</strong> {{ producto.marca }}</div>
+        <div><strong>Tipo:</strong> {{ producto.get_tipo_display }}</div>
+        <div><strong>Talla:</strong> {{ producto.talla }}</div>
+        <div><strong>Precio Venta:</strong> ${{ producto.precio_venta }}</div>
+        <div><strong>Precio Compra:</strong> ${{ producto.precio_compra }}</div>
+        <div><strong>Stock:</strong> {{ producto.stock }}</div>
+        <div><strong>Stock Mínimo:</strong> {{ producto.stock_minimo }}</div>
+    </div>
+
+    {% if producto.descripcion %}
+    <div style="margin-top: 1rem;">
+        <strong>Descripción:</strong><br>
+        {{ producto.descripcion }}
+    </div>
+    {% endif %}
+
+    {% if user.rol == 'administrador' %}
+    <div style="margin-top: 2rem; display:flex; gap:1rem;">
+        <a href="{% url 'producto_editar' producto.pk %}" class="btn btn-primary">✏️ Editar</a>
+        <a href="{% url 'producto_eliminar' producto.pk %}" class="btn btn-danger">🗑️ Desactivar</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends 'pos/base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <h2>💰 Nueva Venta</h2>
+</div>
+
+<form method="POST" id="formVenta">
+    {% csrf_token %}
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div class="form-group">
+            <label>Cliente (Opcional)</label>
+            <select name="cliente_id" class="form-control">
+                <option value="">Venta al público</option>
+                {% for cliente in clientes %}
+                <option value="{{ cliente.id }}">{{ cliente.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Método de Pago</label>
+            <select name="metodo_pago" class="form-control" required>
+                <option value="efectivo">Efectivo</option>
+                <option value="tarjeta">Tarjeta</option>
+                <option value="transferencia">Transferencia</option>
+            </select>
+        </div>
+    </div>
+    
+    <h3 style="margin: 2rem 0 1rem; color: #667eea;">Productos</h3>
+    <div id="productos-container">
+        <div class="producto-item" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 1rem; margin-bottom: 1rem; align-items: end;">
+            <div class="form-group">
+                <label>Producto</label>
+                <select name="producto_id[]" class="form-control producto-select" required>
+                    <option value="">Seleccionar producto</option>
+                    {% for prod in productos %}
+                    <option value="{{ prod.id }}" data-precio="{{ prod.precio_venta }}" data-stock="{{ prod.stock }}">
+                        {{ prod.nombre }} - {{ prod.marca }} (Talla {{ prod.talla }}) - ${{ prod.precio_venta }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Cantidad</label>
+                <input type="number" name="cantidad[]" class="form-control cantidad-input" min="1" value="1" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Precio Unit.</label>
+                <input type="text" class="form-control precio-display" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label>Subtotal</label>
+                <input type="text" class="form-control subtotal-display" readonly>
+            </div>
+            
+            <button type="button" class="btn btn-danger" onclick="this.parentElement.remove(); calcularTotal();">✕</button>
+        </div>
+    </div>
+    
+    <button type="button" class="btn btn-success" onclick="agregarProducto()">+ Agregar Producto</button>
+    
+    <div style="margin-top: 2rem; padding: 1.5rem; background: #f9fafb; border-radius: 10px;">
+        <h3 style="color: #667eea;">Total: $<span id="totalVenta">0.00</span></h3>
+    </div>
+    
+    <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem; padding: 1rem 2rem; font-size: 1.1rem;">
+        💳 Procesar Venta
+    </button>
+</form>
+
+<script>
+function agregarProducto() {
+    const container = document.getElementById('productos-container');
+    const item = container.children[0].cloneNode(true);
+    item.querySelectorAll('input').forEach(input => input.value = input.type === 'number' ? '1' : '');
+    item.querySelector('select').selectedIndex = 0;
+    container.appendChild(item);
+}
+
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('producto-select') || e.target.classList.contains('cantidad-input')) {
+        const item = e.target.closest('.producto-item');
+        const select = item.querySelector('.producto-select');
+        const cantidad = parseInt(item.querySelector('.cantidad-input').value) || 0;
+        const option = select.options[select.selectedIndex];
+        const precio = parseFloat(option.dataset.precio) || 0;
+        
+        item.querySelector('.precio-display').value = '$' + precio.toFixed(2);
+        item.querySelector('.subtotal-display').value = '$' + (precio * cantidad).toFixed(2);
+        
+        calcularTotal();
+    }
+});
+
+function calcularTotal() {
+    let total = 0;
+    document.querySelectorAll('.subtotal-display').forEach(input => {
+        total += parseFloat(input.value.replace('$', '')) || 0;
+    });
+    document.getElementById('totalVenta').textContent = total.toFixed(2);
+}
+</script>
+{% endblock %}

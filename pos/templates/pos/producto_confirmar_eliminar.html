@@ -1,0 +1,44 @@
+<!-- pos/templates/pos/producto_confirmar_eliminar.html -->
+{% extends 'pos/base.html' %}
+
+{% block title %}Confirmar Desactivación - POS Zapatería{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>⚠️ Confirmar Desactivación</h2>
+    <a href="{% url 'productos' %}" class="btn btn-primary">← Volver</a>
+</div>
+
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <div style="text-align: center; padding: 2rem;">
+        <div style="font-size: 5rem; margin-bottom: 1rem;">🗑️</div>
+        
+        <h3 style="color: #333; margin-bottom: 1rem;">
+            ¿Estás seguro de desactivar este producto?
+        </h3>
+        
+        <div style="background: #f9fafb; padding: 1.5rem; border-radius: 10px; margin: 2rem 0; text-align: left;">
+            <p style="margin-bottom: 0.5rem;"><strong>Código:</strong> {{ producto.codigo }}</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Nombre:</strong> {{ producto.nombre }}</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Marca:</strong> {{ producto.marca }}</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Talla:</strong> {{ producto.talla }}</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Stock:</strong> {{ producto.stock }} unidades</p>
+        </div>
+        
+        <p style="color: #666; margin-bottom: 2rem;">
+            El producto será desactivado pero no se eliminará de la base de datos. 
+            Podrás reactivarlo después si lo necesitas.
+        </p>
+        
+        <form method="POST" style="display: flex; gap: 1rem; justify-content: center;">
+            {% csrf_token %}
+            <a href="{% url 'productos' %}" class="btn btn-primary">
+                ❌ Cancelar
+            </a>
+            <button type="submit" class="btn btn-danger">
+                ✓ Sí, Desactivar
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

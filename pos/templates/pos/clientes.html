@@ -1,0 +1,138 @@
+<!-- pos/templates/pos/clientes.html -->
+{% extends 'pos/base.html' %}
+
+{% block title %}Clientes - POS Zapatería{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>👥 Gestión de Clientes</h2>
+    {% if user.rol != 'consulta' %}
+    <a href="{% url 'cliente_nuevo' %}" class="btn btn-primary">+ Nuevo Cliente</a>
+    {% endif %}
+</div>
+
+<!-- CSRF oculto para usar en fetch -->
+<form id="csrf-form">{% csrf_token %}</form>
+
+<div class="search-box">
+    <input type="text" id="searchCliente" class="form-control" placeholder="Buscar por nombre o teléfono...">
+</div>
+
+{% if clientes %}
+<div style="margin-bottom: 1rem; padding: 1rem; background: #f9fafb; border-radius: 8px;">
+    <strong>Total de clientes: {{ clientes.count }}</strong>
+</div>
+
+<div class="table-container">
+    <table id="tablaClientes">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Dirección</th>
+                <th>Fecha Registro</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr>
+                <td><strong>{{ cliente.nombre }}</strong></td>
+                <td>📞 {{ cliente.telefono }}</td>
+                <td>
+                    {% if cliente.email %}
+                        📧 {{ cliente.email }}
+                    {% else %}
+                        <span style="color: #999;">Sin email</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if cliente.direccion %}
+                        {{ cliente.direccion|truncatewords:8 }}
+                    {% else %}
+                        <span style="color: #999;">Sin dirección</span>
+                    {% endif %}
+                </td>
+                <td>{{ cliente.fecha_registro|date:"d/m/Y" }}</td>
+                <td>
+                    {% if user.rol != 'consulta' %}
+                        <a href="{% url 'cliente_editar' cliente.id %}" class="btn btn-primary btn-sm">✏️ Editar</a>
+                        <button onclick="eliminarCliente({{ cliente.id }})"
+                                class="btn btn-danger btn-sm">
+                            🗑️ Eliminar
+                        </button>
+                    {% else %}
+                    <span class="badge badge-info">Ver</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-state-icon">👥</div>
+    <p>No hay clientes registrados</p>
+    {% if user.rol != 'consulta' %}
+    <a href="/admin/pos/cliente/add/" class="btn btn-primary" style="margin-top: 1rem;">+ Agregar Primer Cliente</a>
+    {% endif %}
+</div>
+{% endif %}
+
+<script>
+// 🔍 Búsqueda en tiempo real
+document.getElementById('searchCliente').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#tablaClientes tbody tr');
+    
+    rows.forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+    });
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// 🔐 Obtener CSRF desde el formulario oculto
+function getCSRFToken() {
+    return document.querySelector('#csrf-form input[name="csrfmiddlewaretoken"]').value;
+}
+
+// 🗑️ Función de eliminar con SweetAlert + fetch
+function eliminarCliente(clienteId) {
+    Swal.fire({
+        title: "¿Eliminar Cliente?",
+        text: "Esta acción no se puede deshacer",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6"
+    }).then((result) => {
+        if (result.isConfirmed) {
+
+            fetch(`/clientes/eliminar/${clienteId}/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCSRFToken(),
+                    "Content-Type": "application/json",
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error();
+                Swal.fire("Eliminado", "Cliente eliminado correctamente", "success");
+                setTimeout(() => location.reload(), 1000);
+            })
+            .catch(() => {
+                Swal.fire("Error", "No se pudo eliminar el cliente", "error");
+            });
+        }
+    });
+}
+</script>
+
+{% endblock %}
